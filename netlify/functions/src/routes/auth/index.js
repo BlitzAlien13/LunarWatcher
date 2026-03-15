@@ -121,6 +121,7 @@ router.get("/callback", async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV !== "development",
         sameSite: "None",
+        path: "/",
         maxAge: 6.04e8,
       })
       .redirect(302, DASHBOARD_URL);
