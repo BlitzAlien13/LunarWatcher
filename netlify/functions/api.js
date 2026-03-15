@@ -25,7 +25,7 @@ async function ensureMongoConnected() {
 
 // quick path logger to diagnose routing in Netlify/Express
 api.use((req, _res, next) => {
-  console.log("[api]", { originalUrl: req.originalUrl, url: req.url, baseUrl: req.baseUrl, path: req.path });
+  console.log("[api]", { originalUrl: req.originalUrl, url: req.url, baseUrl: req.baseUrl, path: req.path, cookies: req.headers.cookie });
   next();
 });
 
