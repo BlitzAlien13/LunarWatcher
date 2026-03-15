@@ -8,7 +8,7 @@ dotenv.config();
 // GET: api.lunarwatcher.com/levels
 const router = express.Router();
 
-const DASHBOARD_URL = "https://lunar-watcher-dashboard.netlify.app";
+const FALLBACK_DASHBOARD_URL = "https://lunar-watcher-dashboard.netlify.app";
 const DISCORD_ENDPOINT = "https://discord.com/api/v10";
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
@@ -115,6 +115,12 @@ router.get("/callback", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" },
     );
+    const dashboardUrl =
+      process.env.DASHBOARD_URL ||
+      req.get("origin") ||
+      `${req.protocol}://${req.get("host")}` ||
+      FALLBACK_DASHBOARD_URL;
+
     console.log("Setting cookie with token:", token ? "present" : "missing");
     return res
       .cookie("token", token, {
@@ -124,7 +130,7 @@ router.get("/callback", async (req, res) => {
         path: "/",
         maxAge: 6.04e8,
       })
-      .redirect(302, DASHBOARD_URL);
+      .redirect(302, dashboardUrl);
   } catch (err) {
     console.error(err);
     if (!res.headersSent) {
