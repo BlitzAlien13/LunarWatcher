@@ -9,11 +9,23 @@ dotenv.config();
 const router = express.Router();
 
 const DASHBOARD_URL = "https://lunar-watcher-dashboard.netlify.app";
+const DISCORD_ENDPOINT = "https://discord.com/api/v10";
+const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
+const RAW_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
+const ENCODED_REDIRECT_URI = RAW_REDIRECT_URI
+  ? encodeURIComponent(RAW_REDIRECT_URI)
+  : null;
 
 router.get("/signin", (req, res) => {
   console.log("Signin endpoint called");
+  if (!CLIENT_ID || !RAW_REDIRECT_URI) {
+    return res
+      .status(500)
+      .send("OAuth is misconfigured: missing client id or redirect uri");
+  }
   res.redirect(
-    `https://discord.com/oauth2/authorize?client_id=1476154879868407808&response_type=code&redirect_uri=https%3A%2F%2Flunar-watcher-dashboard.netlify.app%2Fapi%2Fauth%2Fcallback&scope=identify+guilds`,
+    `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${ENCODED_REDIRECT_URI}&scope=identify+guilds`,
   );
 });
 
@@ -23,10 +35,15 @@ router.get("/callback", async (req, res) => {
     req.query.code ? "present" : "missing",
   );
   try {
-    const DISCORD_ENDPOINT = "https://discord.com/api/v10";
-    const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-    const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-    const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
+    if (!CLIENT_ID || !CLIENT_SECRET || !RAW_REDIRECT_URI) {
+      return res
+        .status(500)
+        .send(
+          "OAuth is misconfigured: missing client id/secret or redirect uri",
+        );
+    }
+
+    const REDIRECT_URI = RAW_REDIRECT_URI;
 
     const { code } = req.query;
 
