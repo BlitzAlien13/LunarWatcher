@@ -126,7 +126,7 @@ router.get("/callback", async (req, res) => {
       .cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV !== "development",
-        sameSite: "None",
+        sameSite: "lax",
         path: "/",
         maxAge: 6.04e8,
       })
