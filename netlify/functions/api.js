@@ -1,10 +1,12 @@
 import express, { Router } from "express";
 import serverless from "serverless-http";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 import authRouter from "./src/routes/auth/index.js";
 import dashboardRouter from "./src/routes/dashboard/index.js";
 import levelsRouter from "./src/routes/levels/index.js";
+import baseMiddleware from "./src/middlewares/base-middleware.js";
 
 const api = express();
 const router = Router();
@@ -26,6 +28,10 @@ api.use((req, _res, next) => {
   console.log("[api]", { originalUrl: req.originalUrl, url: req.url, baseUrl: req.baseUrl, path: req.path });
   next();
 });
+
+// parse cookies for auth middleware
+api.use(cookieParser());
+api.use(baseMiddleware);
 
 // Make sure we have a Mongo connection before handling routes
 api.use(async (req, res, next) => {
