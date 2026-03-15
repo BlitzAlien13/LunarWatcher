@@ -13,12 +13,6 @@ export default function GuildList() {
     (async () => {
       setLoading(true);
 
-      const token = localStorage.getItem("jwToken");
-      if (!token && window.location.href !== SIGNIN_URL) {
-        window.location.href = SIGNIN_URL;
-        return;
-      }
-
       try {
         const res = await fetch("/api/dashboard/@me/guilds", {
           credentials: "include",
@@ -27,7 +21,6 @@ export default function GuildList() {
           switch (res.status) {
             case 401:
               console.log("Not authenticated, redirecting to signin page...");
-              localStorage.removeItem("jwToken");
               window.location.href = SIGNIN_URL;
               throw new Error("Not authenticated");
 
