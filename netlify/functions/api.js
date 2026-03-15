@@ -3,6 +3,7 @@ import serverless from "serverless-http";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
+import cors from "cors";
 import authRouter from "./src/routes/auth/index.js";
 import dashboardRouter from "./src/routes/dashboard/index.js";
 import levelsRouter from "./src/routes/levels/index.js";
@@ -13,6 +14,7 @@ const router = Router();
 const mongoUri = process.env.MONGODB_URI;
 const mongoDbName = process.env.MONGODB_DB;
 let mongoReadyPromise;
+const allowedOrigin = process.env.DASHBOARD_URL || "https://lunar-watcher-dashboard.netlify.app";
 
 async function ensureMongoConnected() {
   if (!mongoReadyPromise) {
@@ -28,6 +30,13 @@ api.use((req, _res, next) => {
   console.log("[api]", { originalUrl: req.originalUrl, url: req.url, baseUrl: req.baseUrl, path: req.path, cookies: req.headers.cookie });
   next();
 });
+
+api.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+  }),
+);
 
 // parse cookies for auth middleware
 api.use(cookieParser());
